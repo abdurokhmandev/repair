@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>codefy.uz — Ishlab chiqilmoqda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0B10;
+    --panel: #14161F;
+    --panel-line: #22242F;
+    --ink: #EDEEF2;
+    --muted: #6E7180;
+    --amber: #FFB84D;
+    --amber-dim: #7A5A29;
+    --blue: #5C8DFF;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0;
+    padding:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Space Grotesk', sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  .bg-grid{
+    position:fixed;
+    inset:0;
+    background-image:
+      radial-gradient(var(--panel-line) 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity:0.35;
+    mask-image: radial-gradient(circle at 50% 30%, black 0%, transparent 75%);
+    pointer-events:none;
+  }
+
+  .wrap{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:48px 20px;
+    gap:44px;
+  }
+
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    letter-spacing:0.14em;
+    color:var(--muted);
+    text-transform:uppercase;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:7px; height:7px;
+    border-radius:50%;
+    background:var(--amber);
+    box-shadow:0 0 8px 1px var(--amber);
+    animation:pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ opacity:1; transform:scale(1); }
+    50%{ opacity:0.45; transform:scale(0.75); }
+  }
+
+  .terminal{
+    width:min(640px, 92vw);
+    background:var(--panel);
+    border:1px solid var(--panel-line);
+    border-radius:10px;
+    box-shadow: 0 30px 80px -30px rgba(0,0,0,0.75);
+    overflow:hidden;
+  }
+
+  .term-bar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:12px 16px;
+    border-bottom:1px solid var(--panel-line);
+    background:linear-gradient(180deg, #171922, #14161F);
+  }
+  .dot{ width:10px; height:10px; border-radius:50%; background:#3A3D4A; }
+  .term-title{
+    margin-left:8px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--muted);
+  }
+
+  .term-body{
+    padding:22px 24px 26px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:14px;
+    line-height:1.9;
+    color:#C7CAD6;
+  }
+  .term-body .cmd{ color:var(--ink); }
+  .term-body .cmd::before{ content:"$ "; color:var(--blue); }
+  .term-body .ok{ color:#7FD99A; }
+  .term-body .muted{ color:var(--muted); }
+
+  .bar-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-top:4px;
+  }
+  .bar-track{
+    position:relative;
+    flex:1;
+    height:8px;
+    border-radius:5px;
+    background:#0E1017;
+    border:1px solid var(--panel-line);
+    overflow:hidden;
+  }
+  .bar-fill{
+    position:absolute;
+    inset:0;
+    width:0%;
+    border-radius:5px;
+    background:linear-gradient(90deg, var(--amber-dim), var(--amber));
+    animation: fill 3.2s ease-in-out infinite;
+  }
+  @keyframes fill{
+    0%{ width:6%; }
+    55%{ width:78%; }
+    80%{ width:78%; }
+    100%{ width:78%; }
+  }
+  .bar-pct{
+    font-size:13px;
+    color:var(--amber);
+    min-width:34px;
+    text-align:right;
+  }
+
+  .status-line{
+    margin-top:14px;
+    color:var(--ink);
+  }
+  .status-line .tag{ color:var(--amber); }
+  .cursor{
+    display:inline-block;
+    width:8px; height:16px;
+    background:var(--amber);
+    margin-left:4px;
+    vertical-align:-3px;
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .headline{
+    text-align:center;
+    max-width:640px;
+  }
+  .headline h1{
+    margin:0 0 10px;
+    font-size:clamp(26px, 4.4vw, 40px);
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  .headline p{
+    margin:0;
+    color:var(--muted);
+    font-size:16px;
+    line-height:1.6;
+  }
+
+  .credit{
+    text-align:center;
+    padding-top:8px;
+    border-top:1px solid var(--panel-line);
+    width:min(640px, 92vw);
+  }
+  .credit .label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    color:var(--muted);
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  .credit .name{
+    font-size:clamp(30px, 6vw, 52px);
+    font-weight:700;
+    letter-spacing:-0.01em;
+    background:linear-gradient(90deg, #FFD79A, var(--amber) 45%, #FF9F3D);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    line-height:1.1;
+  }
+  .credit .handles{
+    margin-top:14px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:14px;
+    color:var(--muted);
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    flex-wrap:wrap;
+  }
+  .credit .handles a{
+    color:#B9BCC9;
+    text-decoration:none;
+    border-bottom:1px solid var(--panel-line);
+    padding-bottom:2px;
+    transition:color 0.2s, border-color 0.2s;
+  }
+  .credit .handles a:hover,
+  .credit .handles a:focus-visible{
+    color:var(--amber);
+    border-color:var(--amber);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .bar-fill, .cursor, .eyebrow::before{ animation:none; }
+    .bar-fill{ width:78%; }
+  }
+
+  @media (max-width:480px){
+    .term-body{ font-size:12.5px; }
+    .credit .handles{ gap:10px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+
+<div class="wrap">
+
+  <div class="eyebrow">codefy.uz &nbsp;·&nbsp; build in progress</div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="term-title">codefy.uz — build.log</span>
+    </div>
+    <div class="term-body">
+      <div class="cmd">npm run build</div>
+      <div class="muted">&gt; compiling codefy.uz...</div>
+      <div class="ok">&gt; assets optimallashtirildi ✓</div>
+      <div class="bar-row">
+        <span class="muted">&gt; deploy</span>
+        <div class="bar-track"><div class="bar-fill"></div></div>
+        <span class="bar-pct">78%</span>
+      </div>
+      <div class="status-line"><span class="tag">status:</span> ISHLAB CHIQILMOQDA<span class="cursor"></span></div>
+    </div>
+  </div>
+
+  <div class="headline">
+    <h1>Sayt tez orada ishga tushadi</h1>
+    <p>Hozircha kod yozilmoqda, dizayn sozlanmoqda. Tayyor bo'lishi bilan shu manzilda ko'rasiz.</p>
+  </div>
+
+  <div class="credit">
+    <div class="label">Dasturchi</div>
+    <div class="name">Abdurahmon Mo'minov</div>
+    <div class="handles">
+      <a href="https://abdurokhman.uz" target="_blank" rel="noopener">abdurokhman.uz</a>
+      <a href="https://t.me/abdurokhmandev" target="_blank" rel="noopener">@abdurokhmandev</a>
+      <a href="https://t.me/abdurahmondevuz" target="_blank" rel="noopener">@abdurahmondevuz</a>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
